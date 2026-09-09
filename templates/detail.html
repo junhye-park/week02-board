@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <title>분석 결과 | 사기시그널</title>
+</head>
+
+<body>
+    <nav class="navbar">
+        <a href="{{ url_for('index') }}" class="logo">
+            <span class="logo-icon">S</span>
+            <span>사기시그널</span>
+        </a>
+
+        <a href="{{ url_for('analyze') }}" class="button">
+            + 새 메시지 분석
+        </a>
+    </nav>
+
+    <main class="result-page">
+        {% if report %}
+        <section class="result-header">
+            <div>
+                <span class="section-label">ANALYSIS RESULT</span>
+                <h1>금융사기 위험 분석 결과</h1>
+                <p>
+                    {{ report.created_at.strftime('%Y년 %m월 %d일 %H:%M') }}
+                    분석
+                </p>
+            </div>
+
+            <span class="risk-badge large-badge
+                {% if report.risk_level == '위험' %}
+                    badge-danger
+                {% elif report.risk_level == '주의' %}
+                    badge-warning
+                {% else %}
+                    badge-safe
+                {% endif %}
+            ">
+                {{ report.risk_level }}
+            </span>
+        </section>
+
+        <section class="result-grid">
+            <!-- 위험점수 -->
+            <article class="result-card score-card">
+                <span class="card-label">RISK SCORE</span>
+                <h2>위험점수</h2>
+
+                <div class="score-display
+                    {% if report.risk_level == '위험' %}
+                        score-danger
+                    {% elif report.risk_level == '주의' %}
+                        score-warning
+                    {% else %}
+                        score-safe
+                    {% endif %}
+                ">
+                    <strong>{{ report.risk_score }}</strong>
+                    <span>/ 100</span>
+                </div>
+
+                <div class="score-bar">
+                    <div
+                        class="score-bar-value
+                        {% if report.risk_level == '위험' %}
+                            bar-danger
+                        {% elif report.risk_level == '주의' %}
+                            bar-warning
+                        {% else %}
+                            bar-safe
+                        {% endif %}
+                        "
+                        style="width: {{ report.risk_score }}%;"
+                    ></div>
+                </div>
+
+                <div class="score-scale">
+                    <span>낮음</span>
+                    <span>주의</span>
+                    <span>위험</span>
+                </div>
+            </article>
+
+            <!-- 분석 정보 -->
+            <article class="result-card">
+                <span class="card-label">REPORT INFORMATION</span>
+                <h2>분석 정보</h2>
+
+                <dl class="information-list">
+                    <div>
+                        <dt>의심 유형</dt>
+                        <dd>{{ report.scam_type }}</dd>
+                    </div>
+
+                    <div>
+                        <dt>위험등급</dt>
+                        <dd>{{ report.risk_level }}</dd>
+                    </div>
+
+                    <div>
+                        <dt>분석 번호</dt>
+                        <dd>#{{ report.id }}</dd>
+                    </div>
+
+                    <div>
+                        <dt>탐지 방식</dt>
+                        <dd>키워드 기반 분석</dd>
+                    </div>
+                </dl>
+            </article>
+        </section>
+
+        <!-- 탐지된 위험 신호 -->
+        <section class="result-card signal-card">
+            <span class="card-label">DETECTED SIGNALS</span>
+            <h2>탐지된 위험 신호</h2>
+
+            {% if report.detected_keywords %}
+            <div class="detected-keywords">
+                {% for keyword in report.detected_keywords.split(', ') %}
+                <span>{{ keyword }}</span>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="no-signal">
+                현재 기준으로 탐지된 주요 위험 키워드가 없습니다.
+            </p>
+            {% endif %}
+        </section>
+
+        <!-- 분석한 메시지 -->
+        <section class="result-card message-card">
+            <span class="card-label">ANALYZED MESSAGE</span>
+            <h2>분석한 메시지</h2>
+
+            <blockquote>
+                {{ report.message }}
+            </blockquote>
+        </section>
+
+        {% if report.memo %}
+        <section class="result-card memo-card">
+            <span class="card-label">MEMO</span>
+            <h2>기록한 메모</h2>
+            <p>{{ report.memo }}</p>
+        </section>
+        {% endif %}
+
+        <!-- 대응 안내 -->
+        <section class="response-guide
+            {% if report.risk_level == '위험' %}
+                response-danger
+            {% elif report.risk_level == '주의' %}
+                response-warning
+            {% else %}
+                response-safe
+            {% endif %}
+        ">
+            {% if report.risk_level == "위험" %}
+            <h2>위험 신호가 다수 발견되었습니다</h2>
+            <p>
+                링크를 누르거나 송금하지 말고, 상대방이 주장하는 기관의
+                공식 대표번호로 직접 사실을 확인하세요.
+            </p>
+            {% elif report.risk_level == "주의" %}
+            <h2>주의가 필요한 메시지입니다</h2>
+            <p>
+                메시지의 발신자와 내용을 다시 확인하고,
+                개인정보 또는 인증번호를 전달하지 마세요.
+            </p>
+            {% else %}
+            <h2>주요 위험 신호가 적게 발견되었습니다</h2>
+            <p>
+                낮은 점수가 안전을 보장하지는 않습니다.
+                출처가 불분명한 요청은 반드시 별도로 확인하세요.
+            </p>
+            {% endif %}
+        </section>
+
+        <div class="button-group result-actions">
+            <a href="{{ url_for('index') }}"
+               class="button button-outline">
+                목록으로
+            </a>
+
+            <a href="{{ url_for('edit', report_id=report.id) }}"
+               class="button">
+                기록 수정
+            </a>
+
+            <form
+                method="POST"
+                action="{{ url_for('delete', report_id=report.id) }}"
+                onsubmit="return confirmDelete();"
+            >
+                <button type="submit" class="button delete-button">
+                    기록 삭제
+                </button>
+            </form>
+        </div>
+
+        {% else %}
+        <section class="empty-state result-empty">
+            <h1>분석 기록을 찾을 수 없습니다</h1>
+            <p>삭제되었거나 존재하지 않는 분석 기록입니다.</p>
+
+            <a href="{{ url_for('index') }}" class="button">
+                대시보드로 이동
+            </a>
+        </section>
+        {% endif %}
+    </main>
+
+    <footer>
+        <p>사기시그널 · 본 결과는 학습용 분석 정보입니다.</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <title>분석 기록 수정 | 사기시그널</title>
+</head>
+
+<body>
+    <nav class="navbar">
+        <a href="{{ url_for('index') }}" class="logo">
+            <span class="logo-icon">S</span>
+            <span>사기시그널</span>
+        </a>
+
+        <a href="{{ url_for('index') }}"
+           class="button button-outline">
+            대시보드
+        </a>
+    </nav>
+
+    <main class="form-page">
+        {% if report %}
+        <section class="form-introduction">
+            <span class="section-label">EDIT ANALYSIS</span>
+
+            <h1>
+                분석 기록을<br>
+                수정합니다.
+            </h1>
+
+            <p>
+                메시지를 수정하면 위험 키워드와 점수가
+                자동으로 다시 계산됩니다.
+            </p>
+
+            <div class="current-result">
+                <span>현재 분석 결과</span>
+
+                <div>
+                    <strong>{{ report.risk_score }}점</strong>
+
+                    <span class="risk-badge
+                        {% if report.risk_level == '위험' %}
+                            badge-danger
+                        {% elif report.risk_level == '주의' %}
+                            badge-warning
+                        {% else %}
+                            badge-safe
+                        {% endif %}
+                    ">
+                        {{ report.risk_level }}
+                    </span>
+                </div>
+            </div>
+        </section>
+
+        <section class="analysis-panel">
+            <div class="panel-heading">
+                <div class="scan-icon">✎</div>
+
+                <div>
+                    <span>REPORT #{{ report.id }}</span>
+                    <h2>분석 기록 수정</h2>
+                </div>
+            </div>
+
+            <form method="POST" class="analysis-form">
+                <div class="form-group">
+                    <label for="scam_type">의심 유형</label>
+
+                    <select
+                        id="scam_type"
+                        name="scam_type"
+                        required
+                    >
+                        <option value="스미싱"
+                            {% if report.scam_type == '스미싱' %}selected{% endif %}>
+                            스미싱
+                        </option>
+
+                        <option value="보이스피싱"
+                            {% if report.scam_type == '보이스피싱' %}selected{% endif %}>
+                            보이스피싱
+                        </option>
+
+                        <option value="투자사기"
+                            {% if report.scam_type == '투자사기' %}selected{% endif %}>
+                            투자사기
+                        </option>
+
+                        <option value="중고거래 사기"
+                            {% if report.scam_type == '중고거래 사기' %}selected{% endif %}>
+                            중고거래 사기
+                        </option>
+
+                        <option value="기타"
+                            {% if report.scam_type == '기타' %}selected{% endif %}>
+                            기타
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <div class="label-row">
+                        <label for="message">의심 메시지</label>
+                        <span id="characterCount">0자</span>
+                    </div>
+
+                    <textarea
+                        id="message"
+                        name="message"
+                        rows="11"
+                        maxlength="3000"
+                        required
+                    >{{ report.message }}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="memo">
+                        메모
+                        <span class="optional">선택사항</span>
+                    </label>
+
+                    <textarea
+                        id="memo"
+                        name="memo"
+                        rows="4"
+                        maxlength="1000"
+                        placeholder="추가로 확인할 내용을 기록하세요."
+                    >{{ report.memo or '' }}</textarea>
+                </div>
+
+                <div class="privacy-message">
+                    <strong>수정 후 자동 재분석</strong>
+                    <p>
+                        저장하면 변경된 메시지를 기준으로 위험점수,
+                        위험등급과 탐지 키워드가 다시 계산됩니다.
+                    </p>
+                </div>
+
+                <div class="button-group">
+                    <a
+                        href="{{ url_for('detail', report_id=report.id) }}"
+                        class="button button-outline"
+                    >
+                        취소
+                    </a>
+
+                    <button type="submit"
+                            class="button analyze-button">
+                        수정하고 다시 분석
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        {% else %}
+        <section class="empty-state result-empty">
+            <h1>수정할 기록을 찾을 수 없습니다</h1>
+            <p>삭제되었거나 존재하지 않는 분석 기록입니다.</p>
+
+            <a href="{{ url_for('index') }}" class="button">
+                대시보드로 이동
+            </a>
+        </section>
+        {% endif %}
+    </main>
+
+    <footer>
+        <p>사기시그널 · Financial Fraud Risk Analysis</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
