@@ -4,217 +4,167 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
+    <title>사기시그널</title>
 
-    <title>사기시그널 | 금융사기 위험 분석</title>
+    <!-- CSS 파일을 연결합니다. -->
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
 </head>
 
 <body>
-    <!-- 상단 메뉴 -->
-    <nav class="navbar">
-        <a href="{{ url_for('index') }}" class="logo">
-            <span class="logo-icon">S</span>
-            <span>사기시그널</span>
-        </a>
-
-        <a href="{{ url_for('analyze') }}" class="button">
-            + 메시지 분석
-        </a>
-    </nav>
-
-    <!-- 서비스 소개 영역 -->
-    <header class="hero">
-        <div class="hero-content">
-            <span class="hero-label">FINANCIAL SECURITY</span>
-
-            <h1>
-                의심스러운 메시지,<br>
-                <strong>위험 신호를 확인하세요.</strong>
-            </h1>
-
-            <p>
-                메시지에 포함된 금융사기 위험요소를 분석하고
-                결과를 안전하게 기록합니다.
-            </p>
-
-            <a href="{{ url_for('analyze') }}"
-               class="button hero-button">
-                지금 분석하기
+    <header>
+        <div class="header-inner">
+            <a href="{{ url_for('index') }}" class="logo">
+                사기시그널
             </a>
-        </div>
 
-        <div class="shield-visual">
-            <div class="shield-circle">
-                <span class="shield-mark">✓</span>
-            </div>
-            <p>SCAM SIGNAL DETECTOR</p>
+            <a href="{{ url_for('analyze') }}" class="main-button">
+                메시지 분석
+            </a>
         </div>
     </header>
 
     <main class="container">
-        <!-- 통계 카드 -->
-        <section class="statistics">
-            <div class="stat-card total">
-                <span class="stat-label">전체 분석</span>
-                <strong>{{ total_count }}</strong>
-                <span class="stat-unit">건</span>
+        <!-- 사이트 소개 -->
+        <section class="introduction">
+            <h1>금융사기 의심 메시지를 확인해 보세요</h1>
+
+            <p>
+                메시지에 포함된 위험 키워드를 찾아 점수와 등급으로
+                보여주는 학습용 서비스입니다.
+            </p>
+
+            <a href="{{ url_for('analyze') }}" class="main-button">
+                의심 메시지 분석하기
+            </a>
+        </section>
+
+        <!-- 분석 통계 -->
+        <section class="summary">
+            <div class="summary-item">
+                <span>전체 분석</span>
+                <strong>{{ total_count }}건</strong>
             </div>
 
-            <div class="stat-card danger">
-                <span class="stat-label">위험</span>
-                <strong>{{ danger_count }}</strong>
-                <span class="stat-unit">건</span>
+            <div class="summary-item danger">
+                <span>위험</span>
+                <strong>{{ danger_count }}건</strong>
             </div>
 
-            <div class="stat-card warning">
-                <span class="stat-label">주의</span>
-                <strong>{{ warning_count }}</strong>
-                <span class="stat-unit">건</span>
+            <div class="summary-item warning">
+                <span>주의</span>
+                <strong>{{ warning_count }}건</strong>
             </div>
 
-            <div class="stat-card safe">
-                <span class="stat-label">낮음</span>
-                <strong>{{ low_count }}</strong>
-                <span class="stat-unit">건</span>
+            <div class="summary-item safe">
+                <span>낮음</span>
+                <strong>{{ low_count }}건</strong>
             </div>
         </section>
 
-        <!-- 분석 기록 영역 -->
-        <section class="records-section">
-            <div class="section-heading">
-                <div>
-                    <span class="section-label">ANALYSIS HISTORY</span>
-                    <h2>최근 분석 기록</h2>
-                </div>
+        <!-- 검색 및 필터 -->
+        <section class="records">
+            <div class="section-title">
+                <h2>분석 기록</h2>
+                <p>저장된 메시지 분석 결과를 확인할 수 있습니다.</p>
             </div>
 
-            <!-- 검색 및 필터 -->
-            <form method="GET"
-                  action="{{ url_for('index') }}"
-                  class="filter-form">
-
+            <form method="GET" class="search-form">
                 <input
                     type="search"
                     name="keyword"
                     value="{{ keyword }}"
                     placeholder="메시지 또는 메모 검색"
-                    aria-label="검색어"
                 >
 
-                <select name="scam_type" aria-label="사기 유형">
-                    <option value="">모든 유형</option>
-
+                <select name="scam_type">
+                    <option value="">전체 유형</option>
                     <option value="스미싱"
-                        {% if selected_type == '스미싱' %}selected{% endif %}>
+                        {% if selected_type == "스미싱" %}selected{% endif %}>
                         스미싱
                     </option>
-
                     <option value="보이스피싱"
-                        {% if selected_type == '보이스피싱' %}selected{% endif %}>
+                        {% if selected_type == "보이스피싱" %}selected{% endif %}>
                         보이스피싱
                     </option>
-
                     <option value="투자사기"
-                        {% if selected_type == '투자사기' %}selected{% endif %}>
+                        {% if selected_type == "투자사기" %}selected{% endif %}>
                         투자사기
                     </option>
-
                     <option value="중고거래 사기"
-                        {% if selected_type == '중고거래 사기' %}selected{% endif %}>
+                        {% if selected_type == "중고거래 사기" %}selected{% endif %}>
                         중고거래 사기
                     </option>
-
                     <option value="기타"
-                        {% if selected_type == '기타' %}selected{% endif %}>
+                        {% if selected_type == "기타" %}selected{% endif %}>
                         기타
                     </option>
                 </select>
 
-                <select name="risk_level" aria-label="위험 등급">
-                    <option value="">모든 등급</option>
-
+                <select name="risk_level">
+                    <option value="">전체 등급</option>
                     <option value="위험"
-                        {% if selected_level == '위험' %}selected{% endif %}>
+                        {% if selected_level == "위험" %}selected{% endif %}>
                         위험
                     </option>
-
                     <option value="주의"
-                        {% if selected_level == '주의' %}selected{% endif %}>
+                        {% if selected_level == "주의" %}selected{% endif %}>
                         주의
                     </option>
-
                     <option value="낮음"
-                        {% if selected_level == '낮음' %}selected{% endif %}>
+                        {% if selected_level == "낮음" %}selected{% endif %}>
                         낮음
                     </option>
                 </select>
 
-                <button type="submit" class="button">
-                    검색
-                </button>
+                <button type="submit">검색</button>
 
-                <a href="{{ url_for('index') }}"
-                   class="button button-outline">
+                <a href="{{ url_for('index') }}" class="reset-button">
                     초기화
                 </a>
             </form>
 
-            <!-- 분석 결과 카드 목록 -->
+            <!-- Flask에서 받은 분석 기록을 반복해서 출력합니다. -->
             <div class="record-list">
                 {% for report in reports %}
-                <a href="{{ url_for('detail', report_id=report.id) }}"
-                   class="record-card">
+                <article class="record">
+                    <div class="record-top">
+                        <span class="type">{{ report.scam_type }}</span>
 
-                    <div class="record-status">
-                        <span class="risk-badge
-                            {% if report.risk_level == '위험' %}
-                                badge-danger
-                            {% elif report.risk_level == '주의' %}
-                                badge-warning
-                            {% else %}
-                                badge-safe
-                            {% endif %}
-                        ">
+                        <span class="level {{ report.risk_level }}">
                             {{ report.risk_level }}
                         </span>
-
-                        <strong class="risk-score">
-                            {{ report.risk_score }}
-                            <small>/100</small>
-                        </strong>
                     </div>
 
-                    <div class="record-content">
-                        <div class="record-meta">
-                            <span>{{ report.scam_type }}</span>
-                            <span>
-                                {{ report.created_at.strftime('%Y.%m.%d %H:%M') }}
-                            </span>
-                        </div>
-
-                        <p>
-                            {{ report.message[:90] }}
-                            {% if report.message|length > 90 %}...{% endif %}
-                        </p>
-
-                        {% if report.detected_keywords %}
-                        <div class="keyword-preview">
-                            탐지 신호: {{ report.detected_keywords }}
-                        </div>
+                    <p class="message">
+                        {{ report.message[:100] }}
+                        {% if report.message|length > 100 %}
+                            ...
                         {% endif %}
-                    </div>
+                    </p>
 
-                    <span class="record-arrow">→</span>
-                </a>
+                    <div class="record-bottom">
+                        <span>
+                            위험점수 {{ report.risk_score }}점
+                        </span>
+
+                        <span>
+                            {{ report.created_at.strftime('%Y-%m-%d') }}
+                        </span>
+
+                        <a href="{{ url_for('detail', report_id=report.id) }}">
+                            자세히 보기
+                        </a>
+                    </div>
+                </article>
 
                 {% else %}
-                <div class="empty-state">
-                    <div class="empty-icon">⌕</div>
-                    <h3>분석 기록이 없습니다</h3>
-                    <p>의심스러운 메시지를 입력하고 위험 신호를 확인해 보세요.</p>
+                <div class="empty">
+                    <p>아직 분석한 메시지가 없습니다.</p>
 
-                    <a href="{{ url_for('analyze') }}" class="button">
+                    <a href="{{ url_for('analyze') }}">
                         첫 메시지 분석하기
                     </a>
                 </div>
@@ -222,19 +172,14 @@
             </div>
         </section>
 
-        <!-- 안내 문구 -->
-        <section class="notice">
-            <strong>분석 결과 이용 안내</strong>
-            <p>
-                본 서비스는 입력된 키워드를 기반으로 위험 가능성을
-                안내하는 학습용 프로젝트입니다. 실제 금융사기 여부를
-                확정하거나 법률적 판단을 제공하지 않습니다.
-            </p>
-        </section>
+        <aside class="notice">
+            이 결과는 키워드를 이용한 학습용 분석입니다.
+            실제 금융사기 여부는 관련 기관을 통해 확인해야 합니다.
+        </aside>
     </main>
 
     <footer>
-        <p>사기시그널 · Financial Fraud Risk Analysis</p>
+        사기시그널 · 금융사기 위험 분석 프로젝트
     </footer>
 </body>
 </html>

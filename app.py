@@ -7,6 +7,7 @@ import pymysql
 # .env 파일의 환경변수를 불러옵니다.
 from dotenv import load_dotenv
 import os
+import re
 
 load_dotenv()
 
@@ -27,50 +28,99 @@ def get_db_connection():
 
 
 # 메시지에서 금융사기 위험요소를 분석하는 함수입니다.
+# 메시지에 포함된 금융사기 위험 신호를 분석합니다.
 def analyze_message(message):
-    # 키워드마다 서로 다른 위험점수를 부여합니다.
     risk_keywords = {
-        "송금": 15,
+        # 결제 및 금전 관련 표현
+        "결제": 15,
+        "승인": 15,
+        "송금": 20,
         "입금": 15,
-        "계좌": 10,
-        "비밀번호": 25,
+        "계좌이체": 20,
+        "대출": 15,
+        "미납": 15,
+        "연체": 15,
+
+        # 본인 확인을 유도하는 표현
+        "본인결제아님": 30,
+        "본인 결제 아닐 시": 30,
+        "본인이 아닐 경우": 25,
+        "본인 아닐시": 25,
         "인증번호": 25,
+        "비밀번호": 25,
         "개인정보": 20,
         "신분증": 20,
+
+        # 기관 사칭 관련 표현
+        "국제발신": 15,
+        "해외결제": 20,
         "검찰": 20,
-        "경찰": 15,
+        "경찰": 20,
         "금융감독원": 20,
-        "대출": 15,
-        "투자": 10,
-        "수익 보장": 25,
-        "원금 보장": 25,
-        "당첨": 20,
+        "금감원": 20,
+
+        # 연락과 행동을 재촉하는 표현
+        "연락요망": 15,
+        "즉시 연락": 15,
+        "긴급": 15,
+        "즉시": 10,
+        "차단": 15,
+        "정지": 15,
+        "취소": 10,
+
+        # 링크 및 앱 설치 관련 표현
         "앱 설치": 25,
+        "어플 설치": 25,
         "링크": 15,
         "URL": 15,
-        "즉시": 10,
-        "긴급": 15,
-        "차단": 10
+
+        # 투자사기 관련 표현
+        "수익 보장": 25,
+        "원금 보장": 25,
+        "고수익": 20,
+        "당첨": 20
     }
 
     score = 0
     detected_keywords = []
 
-    # 입력된 메시지에 위험 키워드가 포함됐는지 확인합니다.
+    # 띄어쓰기를 제거한 문자열도 함께 검사합니다.
+    normalized_message = message.lower().replace(" ", "")
+
     for keyword, point in risk_keywords.items():
-        if keyword.lower() in message.lower():
+        normalized_keyword = keyword.lower().replace(" ", "")
+
+        if normalized_keyword in normalized_message:
             score += point
             detected_keywords.append(keyword)
 
-    # 인터넷 주소가 포함되면 위험점수를 추가합니다.
-    if "http://" in message.lower() or "https://" in message.lower():
+    # 인터넷 주소가 포함됐는지 확인합니다.
+    if re.search(r"https?://|www\.", message.lower()):
         score += 25
         detected_keywords.append("인터넷 주소")
 
-    # 최종 점수는 최대 100점으로 제한합니다.
+    # 전화번호가 포함됐는지 확인합니다.
+    if re.search(r"0\d{1,2}[-\s]?\d{3,4}[-\s]?\d{4}", message):
+        score += 10
+        detected_keywords.append("전화번호")
+
+    # 100만 원 이상으로 보이는 큰 금액이 포함됐는지 확인합니다.
+    money_matches = re.findall(r"[\d,]+\s*원", message)
+
+    for money_text in money_matches:
+        number_text = re.sub(r"[^\d]", "", money_text)
+
+        if number_text and int(number_text) >= 1000000:
+            score += 20
+            detected_keywords.append("고액 결제")
+            break
+
+    # 같은 의미의 키워드가 중복 표시되지 않도록 정리합니다.
+    detected_keywords = list(dict.fromkeys(detected_keywords))
+
+    # 점수는 최대 100점까지만 표시합니다.
     score = min(score, 100)
 
-    # 점수에 따라 위험등급을 결정합니다.
     if score >= 60:
         risk_level = "위험"
     elif score >= 30:

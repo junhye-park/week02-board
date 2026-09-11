@@ -4,64 +4,54 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
-
     <title>메시지 분석 | 사기시그널</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
 </head>
 
 <body>
-    <!-- 상단 메뉴 -->
-    <nav class="navbar">
-        <a href="{{ url_for('index') }}" class="logo">
-            <span class="logo-icon">S</span>
-            <span>사기시그널</span>
-        </a>
+    <header>
+        <div class="header-inner">
+            <a href="{{ url_for('index') }}" class="logo">
+                사기시그널
+            </a>
 
-        <a href="{{ url_for('index') }}"
-           class="button button-outline">
-            대시보드
-        </a>
-    </nav>
+            <a href="{{ url_for('index') }}"
+               class="button button-outline">
+                분석 기록
+            </a>
+        </div>
+    </header>
 
     <main class="form-page">
-        <!-- 페이지 설명 -->
+        <!-- 왼쪽 설명 영역 -->
         <section class="form-introduction">
-            <span class="section-label">MESSAGE ANALYSIS</span>
-
-            <h1>
-                의심스러운 메시지를<br>
-                분석해 보세요.
-            </h1>
+            <h1>의심 메시지 분석</h1>
 
             <p>
-                메시지에 포함된 송금 요구, 기관 사칭, 개인정보 요구,
-                링크 등의 위험 신호를 확인합니다.
+                받은 문자나 메신저 내용을 입력하면 금융사기와 관련된
+                위험 키워드를 확인하고 위험점수를 계산합니다.
             </p>
 
             <div class="security-guide">
-                <h3>주요 탐지 신호</h3>
+                <h3>이런 내용을 확인합니다</h3>
 
                 <ul>
-                    <li>계좌이체 또는 긴급 송금 요구</li>
-                    <li>검찰·경찰·금융기관 사칭</li>
-                    <li>비밀번호·인증번호·개인정보 요구</li>
-                    <li>출처가 불분명한 인터넷 주소</li>
-                    <li>원금 또는 고수익 보장 표현</li>
+                    <li>계좌이체나 긴급 송금을 요구하는지</li>
+                    <li>공공기관 또는 금융기관을 사칭하는지</li>
+                    <li>비밀번호나 인증번호를 요구하는지</li>
+                    <li>출처가 불분명한 링크가 포함됐는지</li>
+                    <li>원금이나 고수익을 보장한다고 하는지</li>
                 </ul>
             </div>
         </section>
 
-        <!-- 분석 입력 폼 -->
+        <!-- 오른쪽 입력 폼 -->
         <section class="analysis-panel">
-            <div class="panel-heading">
-                <div class="scan-icon">⌁</div>
-
-                <div>
-                    <span>SCAM DETECTOR</span>
-                    <h2>새 메시지 분석</h2>
-                </div>
-            </div>
+            <h2>메시지 입력</h2>
 
             <form method="POST" class="analysis-form">
                 <div class="form-group">
@@ -73,19 +63,21 @@
                         required
                     >
                         <option value="" disabled selected>
-                            의심되는 유형을 선택하세요
+                            유형을 선택하세요
                         </option>
                         <option value="스미싱">스미싱</option>
                         <option value="보이스피싱">보이스피싱</option>
                         <option value="투자사기">투자사기</option>
-                        <option value="중고거래 사기">중고거래 사기</option>
+                        <option value="중고거래 사기">
+                            중고거래 사기
+                        </option>
                         <option value="기타">기타</option>
                     </select>
                 </div>
 
                 <div class="form-group">
                     <div class="label-row">
-                        <label for="message">의심 메시지</label>
+                        <label for="message">메시지 내용</label>
                         <span id="characterCount">0자</span>
                     </div>
 
@@ -94,9 +86,7 @@
                         name="message"
                         rows="11"
                         maxlength="3000"
-                        placeholder="받은 문자나 메시지 내용을 입력하세요.
-
-예: 고객님의 계좌가 정지될 예정입니다. 즉시 아래 링크에 접속하여 인증번호를 입력하세요."
+                        placeholder="받은 메시지 내용을 입력하세요."
                         required
                     ></textarea>
                 </div>
@@ -112,15 +102,15 @@
                         name="memo"
                         rows="4"
                         maxlength="1000"
-                        placeholder="메시지를 받은 상황이나 추가로 확인할 내용을 기록하세요."
+                        placeholder="메시지를 받은 상황 등을 기록할 수 있습니다."
                     ></textarea>
                 </div>
 
                 <div class="privacy-message">
-                    <strong>개인정보 입력 주의</strong>
+                    <strong>개인정보 입력에 주의하세요.</strong>
                     <p>
-                        실제 계좌번호, 비밀번호, 인증번호, 주민등록번호 등
-                        민감한 개인정보는 입력하지 마세요.
+                        실제 계좌번호, 비밀번호, 인증번호,
+                        주민등록번호는 입력하지 마세요.
                     </p>
                 </div>
 
@@ -130,9 +120,8 @@
                         취소
                     </a>
 
-                    <button type="submit"
-                            class="button analyze-button">
-                        위험 신호 분석하기
+                    <button type="submit" class="button">
+                        분석하기
                     </button>
                 </div>
             </form>
@@ -140,7 +129,7 @@
     </main>
 
     <footer>
-        <p>사기시그널 · Financial Fraud Risk Analysis</p>
+        사기시그널 · 금융사기 위험 분석 프로젝트
     </footer>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
